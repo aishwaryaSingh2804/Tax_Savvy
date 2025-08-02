@@ -1,3 +1,6 @@
+-- ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'qwerty123$';
+-- FLUSH PRIVILEGES;
+
 CREATE DATABASE IF NOT EXISTS TaxSavvy;
 -- drop database if exists TaxSavvy;
 USE TaxSavvy;

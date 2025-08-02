@@ -315,54 +315,59 @@ function BudgetFeaturesApp() {
         );
     });
   }, []);
+const openModal = (feature) => {
+  let explanationData = { explanation: "", affects: "" };
 
-
-  const openModal = (feature) => {
-    console.log("openModal called with feature:", feature);
-  
-    // Ensure we have a safe string to work with
-    const explanationText = feature.feature_detailed_explanation || "";
-    let explanationData;
-    try {
-      explanationData = JSON.parse(explanationText);
-    } catch (error) {
-      console.error("JSON parse error:", error);
-      explanationData = { explanation: explanationText, affects: "" };
+  try {
+    if (typeof feature.feature_detailed_explanation === "string") {
+      explanationData = JSON.parse(feature.feature_detailed_explanation);
+    } else if (typeof feature.feature_detailed_explanation === "object" && feature.feature_detailed_explanation !== null) {
+      explanationData = feature.feature_detailed_explanation;
+    } else {
+      explanationData.explanation = String(feature.feature_detailed_explanation || "");
     }
-    console.log("Parsed explanationData:", explanationData);
-  
-    setPaginationData({
-      explanation: {
-        pages: paginateBulletList(explanationData.explanation || ""),
-        currentPage: 0,
-      },
-      affects: {
-        pages: paginateBulletList(explanationData.affects || ""),
-        currentPage: 0,
-      },
-    });
-    setSelectedFeature(feature);
-    setIsModalOpen(true);
-  };
-  
+  } catch (error) {
+    console.error("JSON parse error:", error);
+    explanationData.explanation = String(feature.feature_detailed_explanation || "");
+  }
+
+  setPaginationData({
+    explanation: {
+      pages: paginateBulletList(explanationData.explanation || ""),
+      currentPage: 0,
+    },
+    affects: {
+      pages: paginateBulletList(explanationData.affects || ""),
+      currentPage: 0,
+    },
+  });
+
+  setSelectedFeature(feature);
+  setIsModalOpen(true);
+};
+
   function paginateBulletList(text, itemsPerPage = 5) {
-    const safeText = text || "";
-    const lines = safeText.split("\n").filter((line) => line.trim() !== "");
-    if (lines.length === 0) {
-      return [`<ul><li>${safeText.trim()}</li></ul>`];
-    }
-    const pages = [];
-    for (let i = 0; i < lines.length; i += itemsPerPage) {
-      pages.push(
-        `<ul>${lines
-          .slice(i, i + itemsPerPage)
-          .map((line) => `<li>${line.trim()}</li>`)
-          .join("")}</ul>`
-      );
-    }
-    return pages;
+  const safeText = typeof text === "string" ? text : String(text || "");
+  const lines = safeText.split("\n").filter((line) => line.trim() !== "");
+  
+  if (lines.length === 0) {
+    return [`<ul><li>${safeText.trim()}</li></ul>`];
   }
   
+  const pages = [];
+  for (let i = 0; i < lines.length; i += itemsPerPage) {
+    pages.push(
+      `<ul>${lines
+        .slice(i, i + itemsPerPage)
+        .map((line) => `<li>${line.trim()}</li>`)
+        .join("")}</ul>`
+    );
+  }
+  return pages;
+}
+
+
+
   useEffect(() => {
     console.log("Modal state changed:", isModalOpen, selectedFeature);
   }, [isModalOpen, selectedFeature]);

@@ -6,7 +6,7 @@ from pymongo import MongoClient
 app = Flask(__name__)
 CORS(app)
 
-genai.configure(api_key="AIzaSyAQAx7rRqLxq6U5XZAmX_xtU1A3kT55KTE")
+genai.configure(api_key="AIzaSyDzYcgzv7AOMQ3HJ4dR822LgsS2_Koo6PQ")
 client = MongoClient("mongodb://localhost:27017/")
 db = client.chatbotDB
 messages_collection = db.messages
@@ -20,16 +20,24 @@ def chat():
 
         messages_collection.insert_one({"text": user_message, "sender": "user"})
 
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(user_message)
-        bot_response = response.text if response else "Sorry, I couldn't generate a response."
+
+        print("Raw Gemini response:", response)  # 👈 Debug log
+
+        bot_response = getattr(response, "text", None)
+        if not bot_response:
+            bot_response = "Sorry, I couldn't generate a response."
 
         messages_collection.insert_one({"text": bot_response, "sender": "bot"})
 
         return jsonify({"response": bot_response})
 
     except Exception as e:
+        import traceback
+        print("Error in /chat:", traceback.format_exc())  # 👈 Full error log
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/history", methods=["GET"])
 def history():

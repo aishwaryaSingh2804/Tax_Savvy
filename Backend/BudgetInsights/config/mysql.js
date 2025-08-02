@@ -1,11 +1,11 @@
 const mysql = require("mysql2/promise");
 
 const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const db = mysql.createPool({
   host: process.env.DB_HOST|| "localhost",
   user: process.env.DB_USER||"root",
-  password: process.env.DB_PASSWORD||"manisha@11",
+  password: process.env.DB_PASSWORD||"qwerty123$",
   database: process.env.DB_NAME||"taxsavvy",
   waitForConnections: true,
   connectionLimit: process.env.DB_CONNECTION_LIMIT ? parseInt(process.env.DB_CONNECTION_LIMIT) : 10, // Convert to number
